@@ -9,7 +9,7 @@ const serviceAccountClientId = process.env.NEXT_PUBLIC_SERVICE_ACCOUNT_CLIENT_ID
 const scopes = ['https://www.googleapis.com/auth/drive.file'];
 const googleDriveId = process.env.NEXT_PUBLIC_SHARED_DRIVE_ID;
 
-export const authenticateGoogle = () => {
+const authenticateGoogle = () => {
   const auth = new google.auth.GoogleAuth({
     credentials: {
       type: 'service_account',
