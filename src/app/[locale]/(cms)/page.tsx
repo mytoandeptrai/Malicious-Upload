@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Upload, Shield, CheckCircle, AlertCircle, FileImage, Loader2 } from 'lucide-react';
+import { Upload, Shield, CheckCircle, AlertCircle, FileImage, Loader2, X } from 'lucide-react';
 import { cn } from '@/libs/utils';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -27,7 +27,7 @@ export default function Home() {
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (file: File) => {
+  const handleFileSelect = (file: File | null) => {
     if (file && file.type.startsWith('image/')) {
       setSelectedFile(file);
       setUploadResult(null);
@@ -112,6 +112,14 @@ export default function Home() {
     fileInputRef.current?.click();
   };
 
+  const handleClear = () => {
+    setSelectedFile(null);
+    setUploadResult(null);
+    setUploading(false);
+    setUploadProgress(0);
+    setDragActive(false);
+  };
+
   return (
     <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4'>
       <div className='mx-auto max-w-2xl space-y-6'>
@@ -150,7 +158,15 @@ export default function Home() {
               <input ref={fileInputRef} type='file' accept='image/*' onChange={handleFileChange} className='hidden' />
 
               {selectedFile ? (
-                <div className='space-y-2'>
+                <div className='relative space-y-2'>
+                  <Button
+                    onClick={handleClear}
+                    variant='destructive'
+                    size='icon'
+                    className='-right-2 -top-2 absolute h-6 w-6 rounded-full'
+                  >
+                    <X className='h-4 w-4' />
+                  </Button>
                   <CheckCircle className='mx-auto h-12 w-12 text-green-500' />
                   <p className='font-medium text-green-700'>{selectedFile.name}</p>
                   <p className='text-gray-500 text-sm'>{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
