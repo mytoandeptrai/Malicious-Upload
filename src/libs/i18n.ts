@@ -9,9 +9,6 @@ export default async function initTranslations(
   resources?: { [key: string]: ResourceLanguage }
 ) {
   i18nInstance = i18nInstance || createInstance();
-
-  console.log('resources', resources);
-
   i18nInstance.use(initReactI18next);
 
   if (!resources) {

@@ -40,6 +40,11 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  api: {
+    bodyParser: {
+      sizeLimit: '15mb',
+    },
+  },
   webpack: process.env.NODE_ENV === 'development' ? undefined : webpack,
 };
 
