@@ -57,26 +57,17 @@ const uploadFileToDrive = async (file: any) => {
     }
 
     /** Get file link from drive */
-    const responseFileLink = await drive.files.get({
+    await drive.files.get({
       fileId: response.data.id,
-      fields: 'id,name,mimeType,webViewLink',
-      supportsAllDrives: true,
+      alt: 'media',
     });
 
-    const fileLink = responseFileLink.data;
-
-    if (!fileLink) {
-      throw new Error('Failed to get file information from Google Drive');
-    }
-
     return {
-      id: fileLink.id,
-      name: fileLink.name,
-      mimeType: fileLink.mimeType,
-      webViewLink: fileLink.webViewLink,
+      id: response.data.id,
+      name: response.data.name,
     };
   } catch (error: any) {
-    console.error('Error in uploadFileToDrive:', error);
+    // biome-ignore lint/complexity/noUselessCatch: <explanation>
     throw error;
   }
 };
@@ -91,11 +82,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'No file provided' }, { status: 400 });
     }
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ success: false, error: 'Only image files are allowed' }, { status: 400 });
-    }
-
     // Validate file size (10MB limit)
     if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json({ success: false, error: 'File size must be less than 10MB' }, { status: 400 });
@@ -108,17 +94,14 @@ export async function POST(request: NextRequest) {
       fileId: response.id,
       fileName: file.name,
       virusScanResult: 'clean',
-      imageUrl: response.webViewLink,
     });
   } catch (error: any) {
-    console.error('Upload error:', error);
-
     // Handle specific Google API errors
     if (error.code === 403) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Google Drive API access denied. Please check your service account credentials.',
+          error: 'This file has been identified as malware or spam and cannot be downloaded.',
         },
         { status: 403 }
       );

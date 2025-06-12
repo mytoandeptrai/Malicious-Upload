@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Upload, Shield, CheckCircle, AlertCircle, FileImage, Loader2, X } from 'lucide-react';
-import { cn } from '@/libs/utils';
 import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { cn } from '@/libs/utils';
+import axios from 'axios';
+import { AlertCircle, CheckCircle, FileImage, Loader2, Shield, Upload, X } from 'lucide-react';
+import { useRef, useState } from 'react';
 
 interface UploadResult {
   success: boolean;
@@ -23,12 +24,11 @@ export default function Home() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
-  console.log('🚀 ~ Home ~ uploadResult:', uploadResult);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (file: File | null) => {
-    if (file && file.type.startsWith('image/')) {
+    if (file) {
       setSelectedFile(file);
       setUploadResult(null);
     } else {
@@ -76,31 +76,22 @@ export default function Home() {
       const formData = new FormData();
       formData.append('file', selectedFile);
 
-      // Simulate progress updates
-      const progressInterval = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return prev;
+      const response = await axios.post('/api/upload-file', formData, {
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percentCompleted);
           }
-          return prev + 10;
-        });
-      }, 200);
-
-      const response = await fetch('/api/upload-file', {
-        method: 'POST',
-        body: formData,
+        },
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
-
-      clearInterval(progressInterval);
-      setUploadProgress(100);
-
-      const result = await response.json();
-      setUploadResult(result);
-    } catch (error) {
+      setUploadResult(response.data);
+    } catch (error: any) {
       setUploadResult({
         success: false,
-        error: 'Upload failed. Please try again.',
+        error: error.response.data?.error,
       });
     } finally {
       setUploading(false);
@@ -113,6 +104,8 @@ export default function Home() {
   };
 
   const handleClear = () => {
+    if (uploading) return;
+
     setSelectedFile(null);
     setUploadResult(null);
     setUploading(false);
@@ -155,15 +148,13 @@ export default function Home() {
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
             >
-              <input ref={fileInputRef} type='file' accept='image/*' onChange={handleFileChange} className='hidden' />
-
+              <input ref={fileInputRef} type='file' onChange={handleFileChange} className='hidden' />
               {selectedFile ? (
                 <div className='relative space-y-2'>
                   <Button
                     onClick={handleClear}
-                    variant='destructive'
                     size='icon'
-                    className='-right-2 -top-2 absolute h-6 w-6 rounded-full'
+                    className='-right-2 -top-2 absolute z-10 h-6 w-6 cursor-pointer rounded-full hover:bg-gray-400'
                   >
                     <X className='h-4 w-4' />
                   </Button>
@@ -238,13 +229,12 @@ export default function Home() {
                     <Shield className='h-4 w-4 text-green-600' />
                     <AlertDescription className='text-green-800'>
                       <strong>Image file scanned OK, no virus detected!</strong>
-                      <br />
                       Your file has been safely uploaded to Google Drive.
                     </AlertDescription>
                   </Alert>
 
                   <div className='space-y-2'>
-                    <div className='flex items-center justify-between'>
+                    <div className='flex items-center gap-x-2'>
                       <span className='font-medium text-sm'>File Name:</span>
                       <span className='text-gray-600 text-sm'>{uploadResult.fileName}</span>
                     </div>
@@ -256,15 +246,6 @@ export default function Home() {
                       </Badge>
                     </div>
                   </div>
-
-                  {uploadResult.imageUrl && (
-                    <div className='space-y-2'>
-                      <p className='font-medium text-sm'>Preview:</p>
-                      <a href={uploadResult.imageUrl} target='_blank' rel='noopener noreferrer'>
-                        <Button>View in Google Drive</Button>
-                      </a>
-                    </div>
-                  )}
                 </>
               ) : (
                 <Alert variant='destructive'>
