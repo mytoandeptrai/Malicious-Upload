@@ -24,6 +24,7 @@ const authenticateGoogle = () => {
 };
 
 const uploadFileToDrive = async (file: any) => {
+  console.log('[DEBUG] PRIVATE_KEY starts with:', process.env.NEXT_PUBLIC_PRIVATE_KEY?.slice(0, 30));
   try {
     const auth = authenticateGoogle();
     const drive = google.drive({ version: 'v3', auth });
