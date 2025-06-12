@@ -1,9 +1,8 @@
+import { fontMono, fontSans, siteConfig } from '@/constants';
+import { cn } from '@/libs/utils';
 import type { Metadata, Viewport } from 'next';
 import '../../globals.css';
 import Providers from '../../providers';
-import { AuthRedirect } from '@/components/shared';
-import { fontMono, fontSans, siteConfig } from '@/constants';
-import { cn } from '@/libs/utils';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.appUrl || 'http://localhost:3000'),
@@ -63,9 +62,7 @@ export default async function RootLayout({
   return (
     <html lang='en'>
       <body suppressHydrationWarning className={cn(`antialiased`, fontSans.variable, fontMono.variable)}>
-        <Providers locale={locale}>
-          <AuthRedirect>{children}</AuthRedirect>
-        </Providers>
+        <Providers locale={locale}>{children}</Providers>
       </body>
     </html>
   );
