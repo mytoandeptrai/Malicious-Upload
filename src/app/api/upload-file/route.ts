@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import mime from 'mime';
+import { type NextRequest, NextResponse } from 'next/server';
 import { Readable } from 'stream';
 
 const privateKey = process.env.NEXT_PUBLIC_PRIVATE_KEY;
@@ -24,45 +24,61 @@ const authenticateGoogle = () => {
 };
 
 const uploadFileToDrive = async (file: any) => {
-  const auth = authenticateGoogle();
-  const drive = google.drive({ version: 'v3', auth });
+  try {
+    const auth = authenticateGoogle();
+    const drive = google.drive({ version: 'v3', auth });
 
-  const mimeType = mime.getType(file.name);
+    const mimeType = mime.getType(file.name);
+    if (!mimeType) {
+      throw new Error('Invalid file type');
+    }
 
-  const fileMetadata = {
-    name: file.name,
-    parents: [googleDriveId!],
-    mimeType: mimeType,
-  };
+    const fileMetadata = {
+      name: file.name,
+      parents: [googleDriveId!],
+      mimeType: mimeType,
+    };
 
-  const fileBuffer = file.stream();
+    const fileBuffer = file.stream();
 
-  /** Add file to drive folder */
-  const response = await drive.files.create({
-    requestBody: fileMetadata,
-    media: {
-      mimeType: mimeType!,
-      body: Readable.from(fileBuffer),
-    },
-    fields: 'id',
-    supportsAllDrives: true,
-  });
+    /** Add file to drive folder */
+    const response = await drive.files.create({
+      requestBody: fileMetadata,
+      media: {
+        mimeType: mimeType,
+        body: Readable.from(fileBuffer),
+      },
+      fields: 'id',
+      supportsAllDrives: true,
+    });
 
-  /** Get file link from drive */
-  const responseFileLink = await drive.files.get({
-    fileId: response.data.id!,
-    fields: 'id,name,mimeType,webViewLink',
-    supportsAllDrives: true,
-  });
+    if (!response.data.id) {
+      throw new Error('Failed to create file in Google Drive');
+    }
 
-  const fileLink = responseFileLink.data;
+    /** Get file link from drive */
+    const responseFileLink = await drive.files.get({
+      fileId: response.data.id,
+      fields: 'id,name,mimeType,webViewLink',
+      supportsAllDrives: true,
+    });
 
-  return {
-    id: fileLink.id,
-    name: fileLink.name,
-    mimeType: fileLink.mimeType,
-    webViewLink: fileLink.webViewLink,
-  };
+    const fileLink = responseFileLink.data;
+
+    if (!fileLink) {
+      throw new Error('Failed to get file information from Google Drive');
+    }
+
+    return {
+      id: fileLink.id,
+      name: fileLink.name,
+      mimeType: fileLink.mimeType,
+      webViewLink: fileLink.webViewLink,
+    };
+  } catch (error: any) {
+    console.error('Error in uploadFileToDrive:', error);
+    throw error;
+  }
 };
 
 // POST request handler
