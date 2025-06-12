@@ -3,10 +3,7 @@ import mime from 'mime';
 import { type NextRequest, NextResponse } from 'next/server';
 import { Readable } from 'stream';
 
-const key =
-  '-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDTd9uNNJ2nmNHQ\nyk0EDTcYjacOzfMtxPybiJBwmZ/kkkdn3ZT4LlMcN04OJlbwuik5+XfCOBl3bUnE\n2f/Z1u4ckI7iphjWcuTvcpjUr24BfCpxVRvLEEQYkbSHMbINsGn4qEUgGLwBJ6RU\n1x4FV6deAkWjPpF39c+5m/qDu7g1TPrz/L7MqreuXztZ/XanHIbafhv9YQ+FydqX\nTFYoMaB+dPFlmDnRBJ52j9HThk5D5JpXlhZHI8swS4j7st0VtFQc6dhM3LizN9Ha\nfrgITLEgiTwBoHUxMT2qQxfxoLvwPALTZVsRo4oSFdwJY49Sw69QueBwGzx1D0qK\nnHF67IglAgMBAAECggEAG+pxKcld3I+QdyMVmqjR8qRUfuBSL2MXQ8L56ltlX6ut\n0HjQXxjicNGeNMD77ihtI9GabSGxvvHG8L0kiNHWOiAdNK9fjQO61B9JLJ6CA6Es\nCy0Ej8B0dNfbQJOfYS4+Nwyjn3KUcwSULXz+Yg8psX/USJIMaw0goGyGXBiOXz6u\nTOZCVl6aORBex+S/wVbkpt2JNltO3fS9plmp5Rkd9EMNduzLRb6pg0hdkYY6EE0V\npQ4G0slq61iTZP4JuQvMZBGtW/KgdgyTQjaUtlVFpu9aCPJFCFZ3qwKNFIxqDgM/\nQoJ42Q+wnUoo7d/VgUdVec6dZzvUDqY/BZm8nzXqgQKBgQDzy5JQg8Oj+rYFWY/L\npw7nQ51y5Pq4dO1KXCf1AhUjsWTDrwjwrRXxDaiZtmDvNccQlfA5Ze+fs+TQlYm0\nHy9RPOY6Gh6lxMULcxTFaxR6ZVX+oJvpsqCOUPE9OHu+CttZt8Ij4cNSwHnT7y/w\nwFg30LRGJRPbq80iele0eIR6wQKBgQDeDf1p0BZjly14GTWXDcOPLIZRt+9Z4kiI\n+o1X99i5a5Pzt4dOJ55F55y667i2nKHlmbX2qIgFw++RbTwe+UkfWERRtCfkMD29\nfR+AOIZCLTJLNB7Ojriw2AiSTFOX5o1gz7eIkvFfjB24HnCnIo8DDuzfs5Q/pU/l\nZrk6gNCaZQKBgQCvlgG2TYA9fRdVuRCQy6w3MgKXOoW9DjHNKZx5oNtazqvVKB6X\nQQIZkA3LT4h3INNThbnzjRBNhIIbHGiGOyOYLfVfCWrjV1nXijX+jcW89Xk/H6vL\nYCS0+2UUA7dTw3wCHRANSc+krQ3Rb2amzdF7uavtDU1FHHJtD5JVX6uCwQKBgAvg\nMapkD5556lue9YfDm67fkbtzG+DxwjFZPQ/0WGnqP/pr2VertMJGVdKFYtaZX+s4\nokuzzbqJNRnQ/sMlT+zWOqkn+m4wykyFEZc47q1BX4w4GGGxrlz+4M56OIpKMUt5\nMHakbTZP9xLuxdWaeo2OUcrQ/t+8hp5dNRDU7NMlAoGBAMnjVUXxsmVi45kv+q8J\nRRQ6kDCILcWhA5Sv7yTTfd7eQBdNmF1XIkSabKWIHpd6VYkNazMqwlsg7qN1weVW\nNofSSPol3ZHagyysJbUnOyP9zEZwGoAI/431FQn5d5rL4tV5WCE/s6PK9yuoT9OX\nUjrU3DDUNt5QJhP0K6EUEjwr\n-----END PRIVATE KEY-----\n';
-
-const privateKey = key?.replace(/\\n/g, '\n');
+const privateKey = process.env.NEXT_PUBLIC_PRIVATE_KEY;
 const clientEmail = process.env.NEXT_PUBLIC_CLIENT_EMAIL;
 const serviceAccountClientId = process.env.NEXT_PUBLIC_SERVICE_ACCOUNT_CLIENT_ID;
 const scopes = ['https://www.googleapis.com/auth/drive.file'];
