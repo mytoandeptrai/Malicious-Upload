@@ -63,6 +63,12 @@ const uploadFileToDrive = async (file: any) => {
       alt: 'media',
     });
 
+    /** Delete file from drive after getting it */
+    await drive.files.delete({
+      fileId: response.data.id,
+      supportsAllDrives: true,
+    });
+
     return {
       id: response.data.id,
       name: response.data.name,
