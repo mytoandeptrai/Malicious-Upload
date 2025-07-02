@@ -3,7 +3,7 @@ import mime from 'mime';
 import { type NextRequest, NextResponse } from 'next/server';
 import { Readable } from 'stream';
 
-const privateKey = process.env.NEXT_PUBLIC_PRIVATE_KEY;
+const privateKey = process.env.NEXT_PUBLIC_PRIVATE_KEY?.replace(/\\n/g, '\n');
 const clientEmail = process.env.NEXT_PUBLIC_CLIENT_EMAIL;
 const serviceAccountClientId = process.env.NEXT_PUBLIC_SERVICE_ACCOUNT_CLIENT_ID;
 const scopes = ['https://www.googleapis.com/auth/drive.file'];
@@ -103,6 +103,7 @@ export async function POST(request: NextRequest) {
       virusScanResult: 'clean',
     });
   } catch (error: any) {
+    console.error('error at uploadFileToDrive', error);
     // Handle specific Google API errors
     if (error.code === 403) {
       return NextResponse.json(
